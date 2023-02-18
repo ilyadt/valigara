@@ -1,0 +1,17 @@
+{
+    "name": "ilyadt/valigara",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ilya D",
+            "email": "ilya_dt@protonmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.0"
+    }
+}
