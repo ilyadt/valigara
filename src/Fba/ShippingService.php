@@ -15,8 +15,9 @@ class ShippingService implements ShippingServiceInterface
 {
     public function __construct(
         private ClientInterface $client,
-        private CreateFulfillmentOrderBodyBuilder $bodyBuilder)
-    {}
+        private CreateFulfillmentOrderBodyBuilder $bodyBuilder,
+    ) {
+    }
 
     /**
      * @throws RuntimeException
@@ -33,11 +34,20 @@ class ShippingService implements ShippingServiceInterface
                 ],
             );
         } catch (GuzzleException $e) {
-            throw new RuntimeException('POST fulfillmentOrders request error: ' . $e->getMessage() . '. orderID=' . $order->getOrderId());
+            throw new RuntimeException(sprintf(
+                'POST fulfillmentOrders orderID=%s, request error: %s',
+                $order->getOrderId(),
+                $e->getMessage()
+            ));
         }
 
         if ($createFulfillmentOrderResp->getStatusCode() !== 200) {
-            throw new RuntimeException('POST fulfillmentOrders http status error: ' . $createFulfillmentOrderResp->getStatusCode(). '. orderID=' . $order->getOrderId());
+            throw new RuntimeException(sprintf(
+                'POST fulfillmentOrders orderID=%s, http status: %s, body: %s',
+                $order->getOrderId(),
+                $createFulfillmentOrderResp->getStatusCode(),
+                $createFulfillmentOrderResp->getBody()
+            ));
         }
 
         // https://developer-docs.amazon.com/sp-api/docs/fulfillment-outbound-api-v2020-07-01-reference#getfulfillmentorder
@@ -47,26 +57,45 @@ class ShippingService implements ShippingServiceInterface
                 $order->getOrderId(),
             ));
         } catch (GuzzleException $e) {
-            throw new RuntimeException('GET fulfillmentOrders request error: ' . $e->getMessage() . '. orderID=' . $order->getOrderId());
+            throw new RuntimeException(sprintf(
+                'GET fulfillmentOrders orderID=%s, request error: %s',
+                $order->getOrderId(),
+                $e->getMessage()
+            ));
         }
 
         if ($getFulfillmentOrderResp->getStatusCode() !== 200) {
-            throw new RuntimeException('GET fulfillmentOrders http status error: ' . $getFulfillmentOrderResp->getStatusCode(). '. orderID=' . $order->getOrderId());
+            throw new RuntimeException(sprintf(
+                'GET fulfillmentOrders orderID=%s, http status: %s, body: %s',
+                $order->getOrderId(),
+                $getFulfillmentOrderResp->getStatusCode(),
+                $getFulfillmentOrderResp->getBody()
+            ));
         }
 
         $jsonBody = json_decode((string) $getFulfillmentOrderResp->getBody(), true);
         if ($jsonBody === null) {
-            throw new RuntimeException('GET fulfillmentOrders invalid response body=' . $jsonBody. '. orderID=' . $order->getOrderId());
+            throw new RuntimeException(sprintf(
+                'GET fulfillmentOrders orderID=%s invalid response body : %s',
+                $order->getOrderId(),
+                $jsonBody
+            ));
         }
 
-        $trackingNumber = $jsonBody['payload']['fulfillmentShipments'][0]['fulfillmentShipmentPackage'][0]['trackingNumber'] ?? null;
+        $trackingNumber =
+            $jsonBody['payload']['fulfillmentShipments'][0]['fulfillmentShipmentPackage'][0]['trackingNumber']
+            ?? null;
 
         // Although the 'trackingNumber' is optional in documentation
         // ( https://developer-docs.amazon.com/sp-api/docs/fulfillment-outbound-api-v2020-07-01-reference#fulfillmentshipmentpackage ),
         // ship method logic cannot be without this param,
         // so we throw the exception
         if ($trackingNumber === null) {
-            throw new RuntimeException('invalid tracking number: body=' . $getFulfillmentOrderResp->getBody() . ', orderID=' . $order->getOrderId());
+            throw new RuntimeException(sprintf(
+                'invalid tracking number orderID=%s body=%s',
+                $order->getOrderId(),
+                $getFulfillmentOrderResp->getBody()
+            ));
         }
 
         return $trackingNumber;

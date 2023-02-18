@@ -10,8 +10,9 @@ use App\Data\BuyerInterface;
 class CreateFulfillmentOrderBodyBuilder
 {
     public function __construct(
-        private ShippingSpeedCategory $shippingSpeedCategory
-    ){}
+        private ShippingSpeedCategory $shippingSpeedCategory,
+    ) {
+    }
 
     /**
      * @throws \RuntimeException
@@ -25,7 +26,7 @@ class CreateFulfillmentOrderBodyBuilder
             $items[] = [
                 'sellerSku' => $product['sku'],
                 'sellerFulfillmentOrderItemId' => $product['sku'],
-                'quantity' => $product['ammount'],
+                'quantity' => (int) $product['ammount'],
             ];
         }
 
@@ -36,7 +37,7 @@ class CreateFulfillmentOrderBodyBuilder
             'displayableOrderComment' => $order->data['comments'],
             'shippingSpeedCategory' => $this->shippingSpeedCategory->getByTypeId((int) $order->data['shipping_type_id']),
             'destinationAddress' => [
-                'name' =>  $destAddress->getName(),
+                'name' => $destAddress->getName(),
                 'addressLine1' => $destAddress->getAddressLine1(),
                 'city' => $destAddress->getCity(),
                 'districtOrCounty' => $destAddress->getCountry(),

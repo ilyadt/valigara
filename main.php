@@ -20,7 +20,11 @@ function main(): void
     // Mock http client
     $mock = new \GuzzleHttp\Handler\MockHandler([
         new \GuzzleHttp\Psr7\Response(200, [], ''),
-        new \GuzzleHttp\Psr7\Response(200, [], '{"payload":{"fulfillmentShipments":[{"fulfillmentShipmentPackage":[{"trackingNumber":"777"}]}]}}'),
+        new \GuzzleHttp\Psr7\Response(
+            200,
+            [],
+            '{"payload":{"fulfillmentShipments":[{"fulfillmentShipmentPackage":[{"trackingNumber":"777"}]}]}}'
+        ),
     ]);
     $handlerStack = \GuzzleHttp\HandlerStack::create($mock);
     $client = new \GuzzleHttp\Client(['handler' => $handlerStack]);
@@ -31,8 +35,7 @@ function main(): void
     try {
         $trackingNumber = $fba->ship($order, $buyer);
     } catch (Throwable $e) {
-        print(sprintf("Error[%s]: %s\n", $e->getCode(), $e->getMessage()));
-        print(sprintf("File: %s:%s\nTrace: \n%s\n" , $e->getFile(), $e->getLine(), $e->getTraceAsString()));
+        print(sprintf("Error: %s\n", $e->getMessage()));;
         return;
     }
 

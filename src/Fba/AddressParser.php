@@ -25,53 +25,37 @@ class AddressParser
         $this->state = $parts[3];
 
         // TODO: validation
-        [$this->postalCode, $this->country] = explode(' ', $parts[4]);
+        $line5 = explode(' ', $parts[4]);
 
+        $this->postalCode = $line5[0];
+        $this->country = implode(' ', array_slice($line5, 1, count($line5)));
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getAddressLine1(): string
     {
         return $this->addressLine1;
     }
 
-    /**
-     * @return string
-     */
     public function getCity(): string
     {
         return $this->city;
     }
 
-    /**
-     * @return string
-     */
     public function getState(): string
     {
         return $this->state;
     }
 
-    /**
-     * @return string
-     */
     public function getPostalCode(): string
     {
         return $this->postalCode;
     }
 
-    /**
-     * @return string
-     */
     public function getCountry(): string
     {
         return $this->country;
