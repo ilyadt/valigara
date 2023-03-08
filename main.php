@@ -35,8 +35,8 @@ function main(): void
     try {
         $trackingNumber = $fba->ship($order, $buyer);
     } catch (Throwable $e) {
-        print(sprintf("Error: %s\n", $e->getMessage()));;
-        return;
+        print(sprintf("Error: %s\n", $e->getMessage()));
+        exit(1);
     }
 
     print('tracking number is "' . $trackingNumber . "\"\n");
